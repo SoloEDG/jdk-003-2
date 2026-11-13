@@ -651,6 +651,216 @@ footer {
 footer span {
   letter-spacing: 1px;
 }
+/* ---- 远征契约 ---- */
+.contract-panel {
+  margin-top: 22px;
+  min-height: auto;
+}
+.contract-offers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.contract-card {
+  background: #20281d;
+  border: 1px solid #46533a;
+  border-radius: 6px;
+  padding: 16px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.contract-card h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #d6dea5;
+  letter-spacing: 1px;
+}
+.contract-card p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.8;
+  color: #98a587;
+}
+.contract-card ul {
+  margin: 0;
+  padding-left: 2px;
+  list-style: none;
+  font-size: 10px;
+  color: #b4c09a;
+  line-height: 2;
+}
+.contract-card footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 10px;
+  color: #c9b483;
+}
+.contract-card footer button {
+  font-size: 11px;
+  border-color: #6f7d4d;
+}
+.contract-active {
+  border: 1px solid #5a6b41;
+  background: #242e1e;
+  border-radius: 6px;
+  padding: 18px;
+  margin-top: 16px;
+}
+.contract-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.contract-head h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.badge {
+  font-size: 9px;
+  letter-spacing: 1px;
+  border: 1px solid #6f7d4d;
+  border-radius: 999px;
+  padding: 3px 10px;
+  color: #c4d097;
+}
+.contract-progress {
+  display: grid;
+  gap: 12px;
+  margin: 14px 0;
+}
+.contract-progress > div {
+  display: grid;
+  grid-template-columns: 150px 1fr 60px;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+}
+.contract-progress b {
+  font-weight: 400;
+  color: #cfd9ab;
+}
+.contract-progress span {
+  font-size: 10px;
+  color: #93a27f;
+  text-align: right;
+}
+.contract-limits {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px dashed #46533a;
+  font-size: 10px;
+  color: #a9b692;
+  line-height: 2;
+}
+.contract-rewards,
+.contract-ledger {
+  margin-top: 18px;
+}
+.contract-rewards h3,
+.contract-ledger h3 {
+  font-size: 13px;
+  color: #d0d8a4;
+  font-weight: 500;
+}
+.contract-card.claimable {
+  border-color: #8a9a5e;
+  background: #2a3522;
+}
+.reward-options.compact {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0;
+}
+.reward-options.compact button {
+  flex: 1;
+  min-height: 0;
+  padding: 14px;
+}
+.ledger-row {
+  display: grid;
+  grid-template-columns: 120px 60px 1fr auto;
+  gap: 10px;
+  align-items: baseline;
+  border-bottom: 1px solid #2c3626;
+  padding: 10px 2px;
+  font-size: 11px;
+  margin: 0;
+}
+.ledger-row b {
+  font-weight: 500;
+  color: #d2dca9;
+}
+.ledger-row span {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.ledger-row.fulfilled span {
+  color: #a9c079;
+}
+.ledger-row.breached span,
+.ledger-row.expired span {
+  color: #c98f7a;
+}
+.ledger-row small {
+  color: #8b9a7b;
+  line-height: 1.6;
+}
+.ledger-row em {
+  font-style: normal;
+  font-size: 9px;
+  color: #c9b483;
+}
+.pact-resolution {
+  border: 1px solid #5a6b41;
+  background: #242e1e;
+  border-radius: 6px;
+  padding: 18px;
+  margin-bottom: 22px;
+}
+.pact-resolution.breached,
+.pact-resolution.expired {
+  border-color: #7d5446;
+  background: #2e221d;
+}
+.pact-resolution h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+.pact-resolution .reason {
+  font-size: 12px;
+  color: #d8dfa7;
+  margin: 0 0 12px;
+}
+.pact-resolution .deltas {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  font-size: 11px;
+  color: #aebb93;
+  line-height: 2;
+}
+.pact-resolution .deltas span {
+  color: #c2ce81;
+  margin-right: 8px;
+}
+.exclusive-tag {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 8px;
+  letter-spacing: 1px;
+  font-style: normal;
+  color: #1d2419;
+  background: #c2ce81;
+  border-radius: 999px;
+  padding: 2px 7px;
+  vertical-align: middle;
+}
 @media (max-width: 1100px) {
   main {
     padding: 24px;
@@ -751,5 +961,16 @@ footer span {
   }
   .arena {
     padding: 16px 0;
+  }
+  .contract-offers {
+    grid-template-columns: 1fr;
+  }
+  .ledger-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .contract-progress > div {
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
 }

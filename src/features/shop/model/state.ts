@@ -9,12 +9,21 @@ const state = reactive({
   open: false,
 });
 export const shopState = readonly(state);
-export function openShop(c: JourneyContext) {
+export function openShop(
+  c: JourneyContext,
+  exclusiveCards: string[] = [],
+) {
   if (state.context?.nodeId !== c.nodeId) {
     state.context = c;
-    state.stock = makeStock(c);
+    state.stock = makeStock(c, exclusiveCards);
   }
   state.open = true;
+}
+/** 违约后撤下尚未购买的契约专属库存；已售出的卡牌仍归玩家所有。 */
+export function withdrawExclusive() {
+  state.stock = state.stock.filter(
+    (item) => !item.exclusive || item.sold,
+  );
 }
 export function itemPrice(id: string) {
   const item = state.stock.find((s) => s.id === id);
@@ -41,7 +50,17 @@ export function exportShop() {
   return JSON.parse(JSON.stringify(state));
 }
 export function restoreShop(d: ReturnType<typeof exportShop>) {
-  Object.assign(state, d);
+  Object.assign(state, {
+    context: d.context ?? null,
+    stock: Array.isArray(d.stock)
+      ? d.stock.map((item: StockItem) => ({
+          ...item,
+          exclusive: item.exclusive ?? false,
+        }))
+      : [],
+    purchases: Array.isArray(d.purchases) ? d.purchases : [],
+    open: d.open ?? false,
+  });
 }
 export function resetShop() {
   state.context = null;

@@ -5,6 +5,7 @@ import { BattlePanel, battleState } from "@/features/battle";
 import { RewardPanel } from "@/features/reward";
 import { ShopPanel } from "@/features/shop";
 import { DeckPanel, deckState } from "@/features/deck";
+import { ContractPanel } from "@/features/contract";
 import { regionNames } from "@/shared/domain";
 import { session, switchTab } from "./session";
 import { load } from "./persistence";
@@ -86,10 +87,15 @@ const progress = computed(() => (routeState.visited.length / 9) * 100);
       </div>
       <div class="content-grid">
         <div class="main-panel">
-          <RouteMap
-            v-if="session.tab === 'route'"
-            @enter="commands.navigate"
-          /><BattlePanel
+          <template v-if="session.tab === 'route'">
+            <RouteMap @enter="commands.navigate" />
+            <ContractPanel
+              :node-id="session.context?.nodeId ?? null"
+              @sign="commands.signPact"
+              @claim="commands.claimPact"
+            />
+          </template>
+          <BattlePanel
             v-else-if="session.tab === 'battle'"
             @play="commands.play"
             @end="commands.turn"
@@ -97,6 +103,7 @@ const progress = computed(() => (routeState.visited.length / 9) * 100);
           /><RewardPanel
             v-else-if="session.tab === 'reward'"
             @claim="commands.claim"
+            @claim-pact="commands.claimPact"
           /><ShopPanel
             v-else-if="session.tab === 'shop'"
             :gold="deckState.hero.gold"

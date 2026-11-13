@@ -27,6 +27,12 @@ interface BattleState {
   queue: EffectEvent[];
   log: string[];
   result: BattleResult | null;
+  /** 契约统计：本场实际打出的攻击牌数。 */
+  attacksPlayed: number;
+  /** 契约统计：本场累计承受的伤害（荆棘与敌方攻击都计入）。 */
+  damageTaken: number;
+  /** 契约统计：敌人是否因中毒伤害倒下。 */
+  poisonKill: boolean;
 }
 const emptyHero = (): Actor => ({
   hp: 72,
@@ -48,6 +54,9 @@ const state = reactive<BattleState>({
   queue: [],
   log: [],
   result: null,
+  attacksPlayed: 0,
+  damageTaken: 0,
+  poisonKill: false,
 });
 export const battleState = readonly(state);
 export function beginBattle(
@@ -66,12 +75,16 @@ export function beginBattle(
   state.phase = "playing";
   state.queue = [];
   state.result = null;
+  state.attacksPlayed = 0;
+  state.damageTaken = 0;
+  state.poisonKill = false;
   state.log = ["战斗开始。状态和牌堆仅属于本场遭遇。"];
   drawCards(state.piles, 5, 1);
 }
-function finish() {
+function finish(poisonFelled = false) {
   if (!state.enemy || !state.context) return;
   if (state.hero.hp <= 0 || state.enemy.hp <= 0) {
+    if (state.enemy.hp <= 0 && poisonFelled) state.poisonKill = true;
     state.phase = state.hero.hp <= 0 ? "lost" : "won";
     state.result = {
       id: state.id,
@@ -92,8 +105,12 @@ function drain() {
       state.log.unshift(`抽取 ${event.effect.amount} 张牌`);
     } else if (event.effect.type === "energy") {
       state.energy += event.effect.amount;
-    } else if (state.enemy)
+    } else if (state.enemy) {
+      const hpBefore = state.hero.hp;
       state.log.unshift(resolveEffect(event, state.hero, state.enemy));
+      const lost = hpBefore - state.hero.hp;
+      if (lost > 0) state.damageTaken += lost;
+    }
     finish();
   }
   state.log = state.log.slice(0, 18);
@@ -109,6 +126,7 @@ export function playCard(id: string) {
   (spec.kind === "power" ? state.piles.exhaust : state.piles.discard).push(
     card,
   );
+  if (spec.kind === "attack") state.attacksPlayed += 1;
   state.queue.push(
     ...spec.effects.map((e) => ({
       effect: {
@@ -124,13 +142,18 @@ export function playCard(id: string) {
 }
 export function endTurn() {
   if (state.phase !== "playing" || !state.enemy) return;
+  const hpBeforePoison = state.enemy.hp;
   const poison = poisonTick(state.enemy);
   if (poison) state.log.unshift(`敌人中毒失去 ${poison} 生命`);
-  finish();
+  const poisonFelled = poison > 0 && state.enemy.hp <= 0 && hpBeforePoison > 0;
+  finish(poisonFelled);
   if (state.phase !== "playing") return;
+  const hpBefore = state.hero.hp;
   const amount = enemyIntent(state.enemy, state.turn);
   damage(state.hero, amount);
   state.log.unshift(`敌人攻击 ${amount}`);
+  const lost = hpBefore - state.hero.hp;
+  if (lost > 0) state.damageTaken += lost;
   poisonTick(state.hero);
   finish();
   if (state.phase !== "playing") return;
@@ -141,6 +164,15 @@ export function endTurn() {
   state.enemy.block = state.turn % 3 === 0 ? 5 : 0;
   drawCards(state.piles, 5, state.turn);
 }
+/** 提供给契约层的本场统计快照。 */
+export function battleContractStats() {
+  return {
+    battleId: state.id,
+    attacksPlayed: state.attacksPlayed,
+    damageTaken: state.damageTaken,
+    poisonKill: state.poisonKill,
+  };
+}
 export function currentIntent() {
   return state.enemy ? enemyIntent(state.enemy, state.turn) : 0;
 }
@@ -148,7 +180,12 @@ export function exportBattle() {
   return JSON.parse(JSON.stringify(state)) as BattleState;
 }
 export function restoreBattle(d: BattleState) {
-  Object.assign(state, d);
+  Object.assign(state, {
+    ...d,
+    attacksPlayed: d.attacksPlayed ?? 0,
+    damageTaken: d.damageTaken ?? 0,
+    poisonKill: d.poisonKill ?? false,
+  });
 }
 export function resetBattle() {
   state.phase = "idle";
@@ -157,4 +194,7 @@ export function resetBattle() {
   state.result = null;
   state.piles = makePiles([], "");
   state.log = [];
+  state.attacksPlayed = 0;
+  state.damageTaken = 0;
+  state.poisonKill = false;
 }

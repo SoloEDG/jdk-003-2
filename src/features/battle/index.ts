@@ -5,6 +5,7 @@ export {
   playCard,
   endTurn,
   currentIntent,
+  battleContractStats,
   exportBattle,
   restoreBattle,
   resetBattle,

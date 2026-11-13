@@ -3,6 +3,7 @@ import { exportBattle, restoreBattle } from "@/features/battle";
 import { exportDeck, restoreDeck } from "@/features/deck";
 import { exportReward, restoreReward } from "@/features/reward";
 import { exportShop, restoreShop } from "@/features/shop";
+import { exportContract, restoreContract } from "@/features/contract";
 import { exportSession, restoreSession } from "./session";
 const KEY = "ember-path-v1";
 function snapshot() {
@@ -13,6 +14,7 @@ function snapshot() {
     deck: exportDeck(),
     reward: exportReward(),
     shop: exportShop(),
+    contract: exportContract(),
     session: exportSession(),
   };
 }
@@ -46,6 +48,16 @@ export function load() {
       restoreDeck(d.deck);
       restoreReward(d.reward);
       restoreShop(d.shop);
+      // 旧版本存档没有契约块时使用空契约，不影响原有进度。
+      restoreContract(
+        d.contract ?? {
+          offer: null,
+          active: null,
+          ledger: [],
+          paidIds: [],
+          lastResolution: null,
+        },
+      );
       restoreSession(d.session);
     } catch {
       restoreRoute(old.route);
@@ -53,6 +65,7 @@ export function load() {
       restoreDeck(old.deck);
       restoreReward(old.reward);
       restoreShop(old.shop);
+      restoreContract(old.contract);
       restoreSession(old.session);
       return false;
     }

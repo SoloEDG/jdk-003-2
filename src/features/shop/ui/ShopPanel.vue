@@ -23,7 +23,7 @@ defineEmits<{ buy: [id: string]; leave: [] }>();
       <div class="stock">
         <div v-for="item in shopState.stock" :key="item.id">
           <div>
-            <b>{{ cards[item.card]?.name }}</b
+            <b>{{ cards[item.card]?.name }}<i v-if="item.exclusive" class="exclusive-tag">契约专属</i></b
             ><small>{{ cards[item.card]?.text }}</small>
           </div>
           <button
